@@ -5,7 +5,7 @@
 const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
-const { startUpdates } = require('./updater');
+const { startUpdates, checkNow } = require('./updater');
 
 const SITE = 'https://xgameshq.com';
 const GAME = SITE + '/portal-arena';
@@ -28,6 +28,8 @@ if (settings.vsync === false) {
 }
 
 ipcMain.handle('overclass:get-vsync', () => settings.vsync !== false);
+ipcMain.handle('overclass:version', () => app.getVersion());
+ipcMain.handle('overclass:check-updates', () => checkNow());   // the game's Settings → Check for updates
 ipcMain.handle('overclass:set-vsync', (e, on) => {
   settings.vsync = !!on;
   try { fs.writeFileSync(settingsFile, JSON.stringify(settings)); } catch (err) { return false; }
