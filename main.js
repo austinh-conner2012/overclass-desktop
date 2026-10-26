@@ -2,11 +2,38 @@
 // It's the same game as the website — accounts, multiplayer, the shop, leaderboards — and always
 // the latest version. Once you've played online it also starts offline (solo play).
 // F11 toggles full screen.
-const { app, BrowserWindow, Menu, shell } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
+const fs = require('fs');
 const path = require('path');
 
 const SITE = 'https://xgameshq.com';
 const GAME = SITE + '/portal-arena';
+
+// Settings the game can change (Graphics → VSync); they need a restart, so they're read up front.
+const settingsFile = path.join(app.getPath('userData'), 'settings.json');
+function readSettings() { try { return JSON.parse(fs.readFileSync(settingsFile, 'utf8')); } catch (e) { return {}; } }
+const settings = readSettings();
+
+// Graphics: always the fast GPU on laptops that have two, WebGL even on graphics chips Chromium is
+// wary of (instead of slow software drawing), and GPU rasterization.
+app.commandLine.appendSwitch('force_high_performance_gpu');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+// VSync off: no frame-rate limit (the game's FPS cap keeps it steady).
+if (settings.vsync === false) {
+  app.commandLine.appendSwitch('disable-gpu-vsync');
+  app.commandLine.appendSwitch('disable-frame-rate-limit');
+}
+
+ipcMain.handle('overclass:get-vsync', () => settings.vsync !== false);
+ipcMain.handle('overclass:set-vsync', (e, on) => {
+  settings.vsync = !!on;
+  try { fs.writeFileSync(settingsFile, JSON.stringify(settings)); } catch (err) { return false; }
+  app.relaunch();
+  app.exit(0);
+  return true;
+});
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -18,7 +45,12 @@ function createWindow() {
     backgroundColor: '#090b10',
     icon: path.join(__dirname, 'icon.png'),
     autoHideMenuBar: true,
-    webPreferences: { contextIsolation: true, sandbox: true },
+    webPreferences: {
+      contextIsolation: true,
+      sandbox: true,
+      preload: path.join(__dirname, 'preload.js'),
+      backgroundThrottling: false,                                   // keep full speed (and online play) when the window isn't focused
+    },
   });
   win.loadURL(GAME);
 
