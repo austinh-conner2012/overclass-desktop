@@ -1,0 +1,79 @@
+{
+  "name": "overclass",
+  "productName": "Overclass",
+  "version": "1.0.0",
+  "description": "Overclass \u2014 eight classes, one arena. The desktop app for xgameshq.com/portal-arena.",
+  "main": "main.js",
+  "author": "XPortal HQ",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --publish never"
+  },
+  "devDependencies": {
+    "electron": "33.4.11",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.xgameshq.overclass",
+    "productName": "Overclass",
+    "copyright": "XPortal HQ",
+    "files": [
+      "main.js",
+      "offline.html",
+      "icon.png"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "category": "public.app-category.games",
+      "identity": null
+    },
+    "dmg": {
+      "artifactName": "Overclass-mac.dmg"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "artifactName": "Overclass-Setup.exe",
+      "oneClick": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Overclass"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "deb",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "Game",
+      "maintainer": "XPortal HQ <austinh-conner2012@users.noreply.github.com>",
+      "artifactName": "Overclass-linux-${arch}.${ext}"
+    },
+    "afterSign": "build/adhoc-sign.js"
+  }
+}
