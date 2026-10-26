@@ -1,7 +1,7 @@
 {
   "name": "overclass",
   "productName": "Overclass",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Overclass \u2014 eight classes, one arena. The desktop app for xgameshq.com/portal-arena.",
   "main": "main.js",
   "author": "XPortal HQ",
@@ -22,6 +22,7 @@
     "files": [
       "main.js",
       "preload.js",
+      "updater.js",
       "offline.html",
       "icon.png"
     ],
@@ -36,13 +37,17 @@
           "arch": [
             "universal"
           ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
         }
       ],
       "category": "public.app-category.games",
-      "identity": null
-    },
-    "dmg": {
-      "artifactName": "Overclass-mac.dmg"
+      "identity": null,
+      "artifactName": "Overclass-mac.${ext}"
     },
     "win": {
       "target": [
@@ -75,6 +80,16 @@
       "maintainer": "XPortal HQ <austinh-conner2012@users.noreply.github.com>",
       "artifactName": "Overclass-linux-${arch}.${ext}"
     },
-    "afterSign": "build/adhoc-sign.js"
+    "afterSign": "build/adhoc-sign.js",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "austinh-conner2012",
+        "repo": "overclass-desktop"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "6.3.9"
   }
 }

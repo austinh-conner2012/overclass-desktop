@@ -5,6 +5,7 @@
 const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const { startUpdates } = require('./updater');
 
 const SITE = 'https://xgameshq.com';
 const GAME = SITE + '/portal-arena';
@@ -73,6 +74,7 @@ function createWindow() {
   win.webContents.on('before-input-event', (e, input) => {
     if (input.type === 'keyDown' && input.key === 'F11') { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
   });
+  return win;
 }
 
 // No menu bar on Windows / Linux (Alt is the game's aim key, and would pop it up); the Mac keeps its
@@ -80,7 +82,8 @@ function createWindow() {
 if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
 
 app.whenReady().then(() => {
-  createWindow();
+  const win = createWindow();
+  startUpdates(win);                                                 // keeps this app itself up to date
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
