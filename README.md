@@ -12,7 +12,7 @@ Get the latest version from [Releases](../../releases/latest):
 |---|---|
 | Windows | `Overclass-Setup.exe` |
 | Mac (Apple Silicon and Intel) | `Overclass-mac.dmg` |
-| Chromebook / Linux | `Overclass-linux-x64.deb` (ARM Chromebooks: `Overclass-linux-arm64.deb`) |
+| Chromebook / Linux | `Overclass-linux-amd64.deb` (ARM Chromebooks: `Overclass-linux-arm64.deb`) |
 
 - **Windows:** run the installer. If Windows says it "protected your PC", click **More info → Run anyway** (the app isn't signed with a paid certificate).
 - **Mac:** open the .dmg and drag Overclass into Applications. The first time, right-click it and choose **Open** (or System Settings → Privacy & Security → **Open Anyway**).

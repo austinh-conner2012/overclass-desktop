@@ -55,4 +55,4 @@ jobs:
 
             **Mac:** download `Overclass-mac.dmg`, open it and drag Overclass into Applications. The first time, right-click the app and choose **Open** (or System Settings → Privacy & Security → **Open Anyway**).
 
-            **Chromebook:** the easiest way is the **Install app** button in the game at https://xgameshq.com/portal-arena. Or turn on Linux (Settings → Advanced → Developers) and open `Overclass-linux-x64.deb` (or `-arm64.deb` on ARM Chromebooks) from your Files app.
+            **Chromebook:** the easiest way is the **Install app** button in the game at https://xgameshq.com/portal-arena. Or turn on Linux (Settings → Advanced → Developers) and open `Overclass-linux-amd64.deb` (or `-arm64.deb` on ARM Chromebooks) from your Files app.
