@@ -15,12 +15,22 @@ const settingsFile = path.join(app.getPath('userData'), 'settings.json');
 function readSettings() { try { return JSON.parse(fs.readFileSync(settingsFile, 'utf8')); } catch (e) { return {}; } }
 const settings = readSettings();
 
-// Graphics: always the fast GPU on laptops that have two, WebGL even on graphics chips Chromium is
-// wary of (instead of slow software drawing), and GPU rasterization.
+// Graphics: always the fast GPU on laptops that have two, and WebGL even on graphics chips Chromium
+// is wary of (instead of slow software drawing). Windows: the fast Direct3D 11 path, and nothing
+// forced on top of it — forced rasterization / zero-copy trip some Windows drivers, and when the GPU
+// process falls over Chromium quietly draws everything in software. The Mac keeps those (fine there).
 app.commandLine.appendSwitch('force_high_performance_gpu');
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
-app.commandLine.appendSwitch('enable-gpu-rasterization');
-app.commandLine.appendSwitch('enable-zero-copy');
+if (process.platform === 'win32') {
+  app.commandLine.appendSwitch('use-angle', 'd3d11');
+} else if (process.platform === 'darwin') {
+  app.commandLine.appendSwitch('enable-gpu-rasterization');
+  app.commandLine.appendSwitch('enable-zero-copy');
+}
+// Never slow the game down for being in the background or partly covered (timers, frames, online play).
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
 // VSync off: no frame-rate limit (the game's FPS cap keeps it steady).
 if (settings.vsync === false) {
   app.commandLine.appendSwitch('disable-gpu-vsync');
