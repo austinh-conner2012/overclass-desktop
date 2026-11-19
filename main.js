@@ -1,4 +1,4 @@
-// Overclass for Windows, Mac and Linux (Chromebook): the game from xgameshq.com in its own window.
+// Overclass for Windows, Mac and Linux (Chromebook): the game from overclasshq.com in its own window.
 // It's the same game as the website — accounts, multiplayer, the shop, leaderboards — and always
 // the latest version. Once you've played online it also starts offline (solo play).
 // F11 toggles full screen.
@@ -6,8 +6,12 @@ const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { startUpdates, checkNow } = require('./updater');
+const { copyStorage } = require('./migrate');
 
-const SITE = 'https://xgameshq.com';
+// The game (and every update to it) comes from overclasshq.com. xgameshq.com is the same site under
+// its old name: links to it still open in the app, and what you'd saved there moves across once (migrate.js).
+const SITE = 'https://overclasshq.com';
+const OLD_SITE = 'https://xgameshq.com';
 const GAME = SITE + '/portal-arena';
 
 // Settings the game can change (Graphics → VSync); they need a restart, so they're read up front.
@@ -67,8 +71,9 @@ function createWindow() {
   });
   win.loadURL(GAME);
 
-  // xgameshq.com pages (the game, signing in) stay in the app; any other link opens in your browser.
-  const onSite = url => url === SITE || url.startsWith(SITE + '/') || url.startsWith('file:');
+  // overclasshq.com pages (the game, signing in) stay in the app, and so do xgameshq.com ones (the old
+  // address of the same site); any other link opens in your browser.
+  const onSite = url => [SITE, OLD_SITE].some(s => url === s || url.startsWith(s + '/')) || url.startsWith('file:');
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (onSite(url)) return { action: 'allow' };
     shell.openExternal(url);
@@ -93,7 +98,12 @@ function createWindow() {
 // standard menu for Cmd+Q, full screen and so on.
 if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // First start on the new address: bring your saved game across from the old one (once).
+  if (!settings.movedToOverclassHq) {
+    const r = await copyStorage(OLD_SITE, SITE);
+    if (r) { settings.movedToOverclassHq = true; try { fs.writeFileSync(settingsFile, JSON.stringify(settings)); } catch (e) {} }
+  }
   const win = createWindow();
   startUpdates(win);                                                 // keeps this app itself up to date
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
