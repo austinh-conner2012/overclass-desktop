@@ -2,7 +2,7 @@
 // It's the same game as the website — accounts, multiplayer, the shop, leaderboards — and always
 // the latest version. Once you've played online it also starts offline (solo play).
 // F11 toggles full screen.
-const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, shell, screen } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const { startUpdates, checkNow } = require('./updater');
@@ -44,6 +44,23 @@ if (settings.vsync === false) {
 ipcMain.handle('overclass:get-vsync', () => settings.vsync !== false);
 ipcMain.handle('overclass:version', () => app.getVersion());
 ipcMain.handle('overclass:check-updates', () => checkNow());   // the game's Settings → Check for updates
+// Settings → Graphics → Window size: the usual sizes that fit this screen, the current one, and fullscreen.
+const WINDOW_SIZES = [[1280, 720], [1366, 768], [1600, 900], [1920, 1080], [2560, 1440], [3840, 2160]];
+ipcMain.handle('overclass:window-sizes', e => {
+  const win = BrowserWindow.fromWebContents(e.sender); if (!win) return null;
+  const area = screen.getDisplayMatching(win.getBounds()).workAreaSize;
+  const [w, h] = win.getContentSize();
+  return { sizes: WINDOW_SIZES.filter(([sw, sh]) => sw <= area.width && sh <= area.height), current: w + 'x' + h, full: win.isFullScreen() };
+});
+ipcMain.handle('overclass:set-window-size', (e, size) => {
+  const win = BrowserWindow.fromWebContents(e.sender); if (!win) return false;
+  if (size === 'full') { win.setFullScreen(true); return true; }
+  const m = /^(\d{3,4})x(\d{3,4})$/.exec(size); if (!m) return false;
+  if (win.isFullScreen()) win.setFullScreen(false);
+  if (win.isMaximized()) win.unmaximize();
+  setTimeout(() => { win.setContentSize(+m[1], +m[2]); win.center(); }, win.isFullScreen() ? 700 : 0);   // (leaving fullscreen takes a moment)
+  return true;
+});
 ipcMain.handle('overclass:set-vsync', (e, on) => {
   settings.vsync = !!on;
   try { fs.writeFileSync(settingsFile, JSON.stringify(settings)); } catch (err) { return false; }
