@@ -1,8 +1,8 @@
 {
   "name": "overclass",
   "productName": "Overclass",
-  "version": "1.5.1",
-  "description": "Overclass \u2014 eight classes, one arena. The desktop app for overclasshq.com/portal-arena.",
+  "version": "1.5.2",
+  "description": "Overclass — eight classes, one arena. The desktop app for overclasshq.com/portal-arena.",
   "main": "main.js",
   "author": "XPortal HQ",
   "license": "UNLICENSED",
